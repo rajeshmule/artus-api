@@ -29,6 +29,7 @@ exports.loginUser = async (req, res, next) =>
         if (!user) return next(error);
         const isMatch = await user.verifyPassword(password);
         if (!isMatch) return next(error);
+        req.session.userid = user.id;
         res.render('hello', { name: user.name });
 
     } catch (error) {
