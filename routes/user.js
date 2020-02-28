@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-const controller = require('../controllers/users.controller');
+const controller = require('../controllers/user');
 
 router
   .route('/register')

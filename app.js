@@ -1,18 +1,17 @@
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
-var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const mongoose = require('mongoose');
-const session = require('express-session');
-const MongoStore = require('connect-mongo')(session);
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users.route');
+var usersRouter = require('./routes/user');
+const articlesRouter = require('./routes/article');
+const v1Router = require('./routes/v1/index');
 
-const mongodbUrl = process.env.MONGODB_URI || 'mongodb://localhost:27017/artus';
+require('dotenv').config();
 
-mongoose.connect(mongodbUrl, {
+mongoose.connect(process.env.MONGODB_URI, {
   useCreateIndex: true,
   useUnifiedTopology: true,
   useNewUrlParser: true,
@@ -20,7 +19,7 @@ mongoose.connect(mongodbUrl, {
   serverSelectionTimeoutMS: 5000
 }, () =>
 {
-  console.log("mongodb connect");
+  console.log(`mongodb connected on ${process.env.MONGODB_URI}`);
 });
 
 var app = express();
@@ -31,20 +30,23 @@ app.set('view engine', 'ejs');
 
 app.use(logger('dev'));
 app.use(express.json());
+// initialize body-parser to parse incoming parameters requests to req.body
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+
+// connect static content which place in public dir when we want to use static content like css images like /images/name.jpg
 app.use(express.static(path.join(__dirname, 'public')));
 
-//use sessions for tracking logins
-app.use(session({
-  secret: 'work hard dream big never give up',
-  resave: false,
-  saveUninitialized: true,
-  store: new MongoStore({ mongooseConnection: mongoose.connection })
-}));
 
+// router for Home-Page
 app.use('/', indexRouter);
+// router for users
 app.use('/users', usersRouter);
+// reuter for articles
+app.use('/articles', articlesRouter);
+
+app.use('/api/v1', v1Router);
+
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next)

@@ -2,7 +2,7 @@ const { Schema, model } = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new Schema({
-    name: {
+    username: {
         type: String,
         required: true,
         unique: true
@@ -12,19 +12,19 @@ const userSchema = new Schema({
         required: true,
         unique: true
     },
+    bio: {
+        type: String
+    },
+    image: {
+        type: String
+    },
+    following: [],
     password: {
         type: String,
-        unique: true,
         required: true
     }
 }, { timestamps: true });
 
-//hashing a password before saving it to the database
-// userSchema.pre('save', async function (next)
-// {
-//     await bcrypt.hashSync(this.password, 10);
-//     next();
-// })
 userSchema.pre('save', function (next)
 {
     this.password = bcrypt.hashSync(this.password, 10);
@@ -37,5 +37,5 @@ userSchema.methods.verifyPassword = function (password)
 };
 
 
-const Users = model('Users', userSchema);
-module.exports = Users;
+const User = model('User', userSchema);
+module.exports = User;
