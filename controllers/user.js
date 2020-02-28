@@ -63,7 +63,7 @@ exports.login = async (req, res, next) =>
 exports.getCurrentUser = async (req, res, next) =>
 {
     try {
-
+        console.log(req);
         const id = req.user.userId
         const user = await User.findById(id);
         const { email, username, bio, image } = user;
@@ -113,19 +113,17 @@ exports.getProfile = async (req, res, next) =>
 {
     try {
         const userName = req.params.username;
-        console.log(userName);
-
-        const user = await User.findOne({ username: userName });
-        const { following, username, bio, image } = user;
+        const user = await User.findOne({ username: userName }).populate('following');
+        const { username, bio, image } = user;
         const userinfo = {
-            username, bio, image, following
+            username, bio, image
         }
         res.json({ profile: userinfo });
-
     } catch (err) {
         next(err);
     }
 }
+
 
 // Follow user
 
@@ -143,11 +141,12 @@ exports.followUser = async (req, res, next) =>
     try {
         const userId = req.user.userId;
         const username = req.params.username;
-        const userProfile = await User.findOne({ username });
-        const following = userProfile.following.includes(userId);
+        const profile = await User.findOne({ username });
+        const following = profile.following.includes(userId);
         if (!following) {
             const userProfile = await User.findOneAndUpdate({ username: req.params.username }, { $push: { following: req.user.userId } }, { new: true });
-            const { following, username, bio, image } = userProfile;
+            const { username, bio, image } = userProfile;
+            const following = userProfile.following.includes(userId);
             const profile = {
                 username, bio, image, following
             }
@@ -172,7 +171,8 @@ exports.unfollowUser = async (req, res, next) =>
         const following = userProfile.following.includes(userId);
         if (following) {
             const userProfile = await User.findOneAndUpdate({ username: req.params.username }, { $pull: { following: req.user.userId } }, { new: true });
-            const { following, username, bio, image } = userProfile;
+            const following = userProfile.following.includes(userId);
+            const { username, bio, image } = userProfile;
             const profile = {
                 username, bio, image, following
             }
