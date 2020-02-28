@@ -18,7 +18,14 @@ const userSchema = new Schema({
     image: {
         type: String
     },
-    following: [],
+    following: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    favorites: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Article'
+    }],
     password: {
         type: String,
         required: true

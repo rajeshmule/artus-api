@@ -129,16 +129,61 @@ exports.getProfile = async (req, res, next) =>
 
 // Follow user
 
+// {
+//     "profile": {
+//       "username": "jake",
+//       "bio": "I work at statefarm",
+//       "image": "https://static.productionready.io/images/smiley-cyrus.jpg",
+//       "following": false
+//     }
+//   }
+
 exports.followUser = async (req, res, next) =>
 {
-    
+    try {
+        const userId = req.user.userId;
+        const username = req.params.username;
+        const userProfile = await User.findOne({ username });
+        const following = userProfile.following.includes(userId);
+        if (!following) {
+            const userProfile = await User.findOneAndUpdate({ username: req.params.username }, { $push: { following: req.user.userId } }, { new: true });
+            const { following, username, bio, image } = userProfile;
+            const profile = {
+                username, bio, image, following
+            }
+            res.json({ profile });
+        } else {
+            res.json("you are following.");
+        }
+
+    } catch (err) {
+        next(err);
+    }
 }
 
 // Unfollow user
 
 exports.unfollowUser = async (req, res, next) =>
 {
+    try {
+        const userId = req.user.userId;
+        const username = req.params.username;
+        const userProfile = await User.findOne({ username });
+        const following = userProfile.following.includes(userId);
+        if (following) {
+            const userProfile = await User.findOneAndUpdate({ username: req.params.username }, { $pull: { following: req.user.userId } }, { new: true });
+            const { following, username, bio, image } = userProfile;
+            const profile = {
+                username, bio, image, following
+            }
+            res.json({ profile });
+        } else {
+            res.json("you are not following.");
+        }
 
+    } catch (err) {
+        next(err);
+    }
 }
 
 
