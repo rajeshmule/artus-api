@@ -1,11 +1,17 @@
 const { Schema, model } = require('mongoose');
+const slugify = require('slugify');
+
+
 
 const articleSchema = new Schema({
     title: {
         type: String,
         required: true
     },
-    discription: {
+    slug: {
+        type: String
+    },
+    description: {
         type: String,
         required: true
     },
@@ -28,6 +34,12 @@ const articleSchema = new Schema({
         ref: 'Comment'
     }]
 }, { timestamps: true });
+
+articleSchema.pre('save', function (next)
+{
+    this.slug = slugify(this.title);
+    next();
+});
 
 
 const Article = model('Article', articleSchema);

@@ -5,8 +5,6 @@ var logger = require('morgan');
 const mongoose = require('mongoose');
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/user');
-const articlesRouter = require('./routes/article');
 const v1Router = require('./routes/v1/index');
 
 require('dotenv').config();
@@ -36,17 +34,10 @@ app.use(express.urlencoded({ extended: false }));
 // connect static content which place in public dir when we want to use static content like css images like /images/name.jpg
 app.use(express.static(path.join(__dirname, 'public')));
 
-
 // router for Home-Page
 app.use('/', indexRouter);
-// router for users
-app.use('/users', usersRouter);
 // reuter for articles
-app.use('/articles', articlesRouter);
-
 app.use('/api/v1', v1Router);
-
-
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next)
