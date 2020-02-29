@@ -5,7 +5,6 @@ exports.listArticle = async (req, res, next) =>
     try {
         const articles = await Article.find({}).populate('author');
 
-
         const listarticles = articles.map((article) =>
         {
             const { username, bio, image, following } = article.author;

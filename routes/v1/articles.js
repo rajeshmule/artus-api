@@ -3,6 +3,7 @@ const router = express.Router();
 
 const controller = require('../../controllers/article');
 const { validateJWT } = require('../../modules/auth');
+const { getComments, addComment, deleteComment } = require('../../controllers/comment');
 
 router
     .route('/')
@@ -14,6 +15,16 @@ router
     .get(controller.getArticle)
     .put(validateJWT, controller.updateArticle)
     .delete(validateJWT, controller.deleteArticle)
+
+router
+    .route('/:slug/comments')
+    .post(validateJWT, addComment)
+    .get(validateJWT, getComments)
+
+router
+    .route('/:slug/comments/:id')
+    .delete(validateJWT, deleteComment)
+
 
 
 module.exports = router;
