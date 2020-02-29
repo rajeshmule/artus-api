@@ -12,8 +12,8 @@ router
 router
     .route('/:slug')
     .get(controller.getArticle)
-    .put(controller.updateArticle)
-    .delete(controller.deleteArticle)
+    .put(validateJWT, controller.updateArticle)
+    .delete(validateJWT, controller.deleteArticle)
 
 
 module.exports = router;
