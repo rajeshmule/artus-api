@@ -6,7 +6,8 @@ const slugify = require('slugify');
 const articleSchema = new Schema({
     title: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     slug: {
         type: String

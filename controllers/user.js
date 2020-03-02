@@ -95,10 +95,7 @@ exports.getProfile = async (req, res, next) =>
     try {
         const userName = req.params.username;
         const user = await User.findOne({ username: userName }).populate('following');
-      
-
         if (user) {
-
             const { username, bio, image } = user;
             const userinfo = {
                 username, bio, image
@@ -122,7 +119,7 @@ exports.followUser = async (req, res, next) =>
         const userId = req.user.userId;
         const username = req.params.username;
         const profile = await User.findOne({ username });
-       
+
         if (profile) {
             const following = profile.following.includes(userId);
 

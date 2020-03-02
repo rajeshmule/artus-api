@@ -9,7 +9,7 @@ exports.getComments = async (req, res, next) =>
         const article = await Article.findOne({ slug: articleSlug }).populate('comments', '-__v -article');
         const articleId = article.id;
         const comments = await Comment.find({ article: articleId }).sort({ createdAt: 'desc' }).populate('author', '-_id -favorites -email -password -__v -createdAt -updatedAt');
-       
+
         res.json({ comments });
 
     } catch (error) {
@@ -23,16 +23,12 @@ exports.addComment = async (req, res, next) =>
         const commentBody = req.body.comment;
         const authorId = req.user.userId;
         const articleSlug = req.params.slug;
-
         const article = await Article.findOne({ slug: articleSlug });
         const articleId = article.id;
-
         const data = { ...commentBody, author: authorId, article: articleId }
         const createComment = await Comment.create(data);
-
         const commentId = createComment.id;
         await Article.findByIdAndUpdate(articleId, { $push: { comments: commentId } }, { new: true })
-
         const newComment = await Comment.findById(commentId).populate('author');
 
         const { username, bio, image, following } = newComment.author;
@@ -52,21 +48,19 @@ exports.addComment = async (req, res, next) =>
 exports.deleteComment = async (req, res, next) =>
 {
     try {
+        const commentId = req.params.id;
+        const comment = await Comment.findById(commentId).populate('author');
 
         const userId = req.user.userId;
-        const articleSlug = req.params.slug;
-        const commentId = req.params.id;
-        
-
-        const comment = await Comment.findById(commentId).populate('author');
         const commentAuthorId = comment.author.id;
-        
+
         if (userId === commentAuthorId) {
             await Comment.findByIdAndDelete(commentId);
             res.json({ message: "your comment is deleted." })
         } else {
             res.json({ message: "you can't delete this comment." })
         }
+
 
 
     } catch (error) {

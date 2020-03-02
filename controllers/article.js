@@ -36,7 +36,7 @@ exports.listArticle = async (req, res, next) =>
 
 
 
-        res.json({ listarticles });
+        res.json({ articles: listarticles });
     } catch (error) {
         next(error);
     }
@@ -67,7 +67,7 @@ exports.createArticle = async (req, res, next) =>
                 following: article.author.following
             }
         }
-        res.json({ newArticle });
+        res.json({ article: newArticle });
 
     } catch (error) {
         next(error);
@@ -103,7 +103,7 @@ exports.getArticle = async (req, res, next) =>
             }
         }
 
-        res.json({ newArticle })
+        res.json({ article: newArticle })
 
     } catch (error) {
         next(error);
@@ -114,48 +114,42 @@ exports.updateArticle = async (req, res, next) =>
 {
     try {
         const slug = req.params.slug;
-        const data = req.body.article;
-    
-        const currentUserId = req.user.userId;
-        // const article = await Article.findOne({ slug }).populate('author');
         const article = await Article.findOne({ slug }).populate('author');
+        if (article) {
+            if (req.user.userId === article.author.id) {
+                const data = req.body.article;
+                const article = await Article.findOneAndUpdate({ slug }, data);
+                if (article) {
+                    const article = await Article.findOne({ slug }).populate('author');
+                    const newArticle = {
+                        slug: article.slug,
+                        title: article.title,
+                        description: article.description,
+                        body: article.body,
+                        tagList: article.tagList,
+                        createdAt: article.createdAt,
+                        updatedAt: article.updatedAt,
+                        favorited: article.favorited,
+                        favoritesCount: article.favoritesCount,
+                        author: {
+                            username: article.author.username,
+                            bio: article.author.bio,
+                            image: article.author.image,
+                            following: article.author.following
+                        }
+                    }
+                    res.json({ article: newArticle })
+                }
+                else {
+                    res.json({ "message": "you can't update this article" });
+                }
 
-        const authorId = article.author.id;
-
-        if (currentUserId === authorId) {
-
-
-            const article = await Article.findOneAndUpdate({ slug }, data);
-
-
-            // if (article) {
-            //     const article = await Article.findOne({ slug }).populate('author');
-            //     const newArticle = {
-            //         slug: article.slug,
-            //         title: article.title,
-            //         description: article.description,
-            //         body: article.body,
-            //         tagList: article.tagList,
-            //         createdAt: article.createdAt,
-            //         updatedAt: article.updatedAt,
-            //         favorited: article.favorited,
-            //         favoritesCount: article.favoritesCount,
-            //         author: {
-            //             username: article.author.username,
-            //             bio: article.author.bio,
-            //             image: article.author.image,
-            //             following: article.author.following
-            //         }
-            //     }
-            //     res.json({ newArticle })
-        }
-        else {
-            res.json({ "message": "you can't update this article" });
+            }
+        } else {
+            res.json({ "message": "article not present" })
         }
 
     } catch (error) {
-        console.log(error);
-
         next(error);
     }
 }
@@ -165,16 +159,16 @@ exports.deleteArticle = async (req, res, next) =>
     try {
         const slug = req.params.slug;
         const currentUserId = req.user.userId;
-      
+
         const article = await Article.findOne({ slug }).populate('author');
         const author = article.author;
         const authorId = author.id;
-       
+
         if (currentUserId === authorId) {
             await Article.findOneAndDelete({ slug });
-            res.json("article deleted");
+            res.json({ "message": "article deleted" });
         } else {
-            res.json("you can't delete this article");
+            res.json({ "message": "you can't delete this article" });
         }
 
     } catch (error) {
@@ -187,24 +181,28 @@ exports.favorite = async (req, res, next) =>
 {
     try {
         const slug = req.params.slug;
-        const userId = req.user.userId;
-    
-        const articleId = await (await Article.findOne({ slug })).id;
-        const count = await User.countDocuments({ favorites: { $in: [articleId] } })
-        if (!count) {
-            await User.findByIdAndUpdate(userId, { $push: { favorites: articleId } }, { new: true });
+
+        const article = await Article.findOne({ slug });
+        if (article) {
+            const articleId = article.id;
             const count = await User.countDocuments({ favorites: { $in: [articleId] } })
-        
-            await Article.findByIdAndUpdate(articleId, { favoritedCount: count });
-            const article = await Article.findById(articleId).populate('author');
-          
-            res.json({ article })
+            if (!count) {
+                const userId = req.user.userId;
+                await User.findByIdAndUpdate(userId, { $push: { favorites: articleId } }, { new: true });
+                const count = await User.countDocuments({ favorites: { $in: [articleId] } })
 
+                await Article.findByIdAndUpdate(articleId, { favoritedCount: count });
+                const article = await Article.findById(articleId).populate('author', '-password');
+
+                res.json({ article })
+            } else {
+                res.json({ "message": "you have like this article." })
+            }
         } else {
-            res.json({ "message": "you have like." })
+            res.json({ "message": "article not exist." })
         }
-
     } catch (error) {
+
         next(error);
     }
 }
@@ -213,21 +211,23 @@ exports.unfavorite = async (req, res, next) =>
 {
     try {
         const slug = req.params.slug;
-        const userId = req.user.userId;
-        
-        const articleId = await (await Article.findOne({ slug })).id;
-        const count = await User.countDocuments({ favorites: { $in: [articleId] } })
-        if (count) {
-            await User.findByIdAndUpdate(userId, { $pull: { favorites: articleId } }, { new: true });
-            const count = await User.countDocuments({ favorites: { $in: [articleId] } })
-       
-            await Article.findByIdAndUpdate(articleId, { favoritedCount: count });
-            const article = await Article.findById(articleId).populate('author');
-            
-            res.json({ article })
 
+        const article = await Article.findOne({ slug });
+        if (article) {
+            const articleId = article.id;
+            const count = await User.countDocuments({ favorites: { $in: [articleId] } })
+            if (count) {
+                const userId = req.user.userId;
+                await User.findByIdAndUpdate(userId, { $pull: { favorites: articleId } }, { new: true });
+                const count = await User.countDocuments({ favorites: { $in: [articleId] } })
+                await Article.findByIdAndUpdate(articleId, { favoritedCount: count });
+                const article = await Article.findById(articleId).populate('author');
+                res.json({ article })
+            } else {
+                res.json({ "message": "you dont have like." })
+            }
         } else {
-            res.json({ "message": "you dont have like." })
+            res.json({ "message": "article not exist." })
         }
     } catch (error) {
         next(error);
@@ -240,11 +240,11 @@ exports.feedArticle = async (req, res, next) =>
         let limit = req.query.limit || 20;
         let offset = req.query.offset || 0;
         const userId = req.user.userId
-       
+
 
         const user = await User.findById(userId)
 
-       
+
 
         const articles = await Article.find({ author: { $in: user.following } })
             .limit(Number(limit))
@@ -274,7 +274,7 @@ exports.feedArticle = async (req, res, next) =>
 
 
 
-        res.json({ listarticles });
+        res.json({ articles: listarticles });
     } catch (error) {
         next(error);
     }
