@@ -114,11 +114,16 @@ exports.getProfile = async (req, res, next) =>
     try {
         const userName = req.params.username;
         const user = await User.findOne({ username: userName }).populate('following');
-        const { username, bio, image } = user;
-        const userinfo = {
-            username, bio, image
+        if (user) {
+
+            const { username, bio, image } = user;
+            const userinfo = {
+                username, bio, image
+            }
+            res.json({ profile: userinfo });
+        } else {
+            res.json({ profile: "Not found." });
         }
-        res.json({ profile: userinfo });
     } catch (err) {
         next(err);
     }

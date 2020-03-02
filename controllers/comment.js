@@ -8,7 +8,7 @@ exports.getComments = async (req, res, next) =>
         const articleSlug = req.params.slug;
         const article = await Article.findOne({ slug: articleSlug }).populate('comments', '-__v -article');
         const articleId = article.id;
-        const comments = await Comment.find({ article: articleId }).populate('author', '-_id -favorites -email -password -__v -createdAt -updatedAt');
+        const comments = await Comment.find({ article: articleId }).sort({ createdAt: 'desc' }).populate('author', '-_id -favorites -email -password -__v -createdAt -updatedAt');
         // console.log(comments);
         res.json({ comments });
 

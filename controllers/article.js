@@ -4,7 +4,9 @@ const User = require('../models/user');
 exports.listArticle = async (req, res, next) =>
 {
     try {
-        const articles = await Article.find({}).populate('author');
+        const articles = await Article.find({})
+            .sort({ createdAt: 'desc' })
+            .populate('author');
 
         const listarticles = articles.map((article) =>
         {
