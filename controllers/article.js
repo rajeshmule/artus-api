@@ -1,4 +1,5 @@
 const Article = require('../models/article');
+const User = require('../models/user');
 
 exports.listArticle = async (req, res, next) =>
 {
@@ -107,6 +108,8 @@ exports.updateArticle = async (req, res, next) =>
     try {
         const slug = req.params.slug;
         const data = req.body.article;
+        console.log(data);
+
         const currentUserId = req.user.userId;
         // const article = await Article.findOne({ slug }).populate('author');
         const article = await Article.findOne({ slug }).populate('author');
@@ -161,6 +164,60 @@ exports.deleteArticle = async (req, res, next) =>
             res.json("you can't delete this article");
         }
 
+    } catch (error) {
+        next(error);
+    }
+}
+
+
+exports.favorite = async (req, res, next) =>
+{
+    try {
+        const slug = req.params.slug;
+        const userId = req.user.userId;
+        // console.log("from auth userId", userId);
+        // console.log("slug", slug);
+        const articleId = await (await Article.findOne({ slug })).id;
+        const count = await User.countDocuments({ favorites: { $in: [articleId] } })
+        if (!count) {
+            await User.findByIdAndUpdate(userId, { $push: { favorites: articleId } }, { new: true });
+            const count = await User.countDocuments({ favorites: { $in: [articleId] } })
+            // console.log(count);
+            await Article.findByIdAndUpdate(articleId, { favoritedCount: count });
+            const article = await Article.findById(articleId).populate('author');
+            // console.log(article);
+            res.json({ article })
+
+        } else {
+            res.json({ "message": "you have like." })
+        }
+
+    } catch (error) {
+        next(error);
+    }
+}
+
+exports.unfavorite = async (req, res, next) =>
+{
+    try {
+        const slug = req.params.slug;
+        const userId = req.user.userId;
+        // console.log("from auth userId", userId);
+        // console.log("slug", slug);
+        const articleId = await (await Article.findOne({ slug })).id;
+        const count = await User.countDocuments({ favorites: { $in: [articleId] } })
+        if (count) {
+            await User.findByIdAndUpdate(userId, { $pull: { favorites: articleId } }, { new: true });
+            const count = await User.countDocuments({ favorites: { $in: [articleId] } })
+            // console.log(count);
+            await Article.findByIdAndUpdate(articleId, { favoritedCount: count });
+            const article = await Article.findById(articleId).populate('author');
+            // console.log(article);
+            res.json({ article })
+
+        } else {
+            res.json({ "message": "you dont have like." })
+        }
     } catch (error) {
         next(error);
     }

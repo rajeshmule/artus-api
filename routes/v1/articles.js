@@ -17,6 +17,11 @@ router
     .delete(validateJWT, controller.deleteArticle)
 
 router
+    .route('/:slug/favorite')
+    .post(validateJWT, controller.favorite)
+    .delete(validateJWT, controller.unfavorite)
+
+router
     .route('/:slug/comments')
     .post(validateJWT, addComment)
     .get(getComments)

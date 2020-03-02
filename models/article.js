@@ -37,7 +37,9 @@ const articleSchema = new Schema({
 
 articleSchema.pre('save', function (next)
 {
-    this.slug = slugify(this.title);
+    this.slug = slugify(this.title, {
+        lower: true
+    });
     next();
 });
 
