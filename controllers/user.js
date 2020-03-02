@@ -9,7 +9,7 @@ exports.register = async (req, res, next) =>
         const data = req.body.user;
 
         const user = await User.create(data);
-        console.log(user);
+
         const token = await generateJWT(user);
 
         const userinfo = {
@@ -19,16 +19,7 @@ exports.register = async (req, res, next) =>
             bio: user.bio,
             image: user.image
         }
-        // console.log({ user: userinfo });
-
         res.json({ user: userinfo });
-        // "user": {
-        //     "email": "jake@jake.jake",
-        //     "token": "jwt.token.here",
-        //     "username": "jake",
-        //     "bio": "I work at statefarm",
-        //     "image": null
-        //   }
     } catch (err) {
         next(err);
     }
@@ -63,7 +54,6 @@ exports.login = async (req, res, next) =>
 exports.getCurrentUser = async (req, res, next) =>
 {
     try {
-        console.log(req);
         const id = req.user.userId
         const user = await User.findById(id);
         const { email, username, bio, image } = user;
@@ -85,7 +75,6 @@ exports.updateUser = async (req, res, next) =>
         const id = req.user.userId;
         const updatedData = req.body.user;
         const updateUser = await User.findByIdAndUpdate(id, updatedData);
-        console.log(updateUser.id);
         const user = await User.findById(updateUser.id);
         const { email, username, bio, image } = user;
         const userinfo = {
@@ -100,21 +89,13 @@ exports.updateUser = async (req, res, next) =>
 
 // get profile
 
-// {
-//     "profile": {
-//       "username": "jake",
-//       "bio": "I work at statefarm",
-//       "image": "https://static.productionready.io/images/smiley-cyrus.jpg",
-//       "following": false
-//     }
-//   }
 
 exports.getProfile = async (req, res, next) =>
 {
     try {
         const userName = req.params.username;
         const user = await User.findOne({ username: userName }).populate('following');
-        console.log(user);
+      
 
         if (user) {
 
@@ -134,14 +115,6 @@ exports.getProfile = async (req, res, next) =>
 
 // Follow user
 
-// {
-//     "profile": {
-//       "username": "jake",
-//       "bio": "I work at statefarm",
-//       "image": "https://static.productionready.io/images/smiley-cyrus.jpg",
-//       "following": false
-//     }
-//   }
 
 exports.followUser = async (req, res, next) =>
 {
@@ -149,10 +122,9 @@ exports.followUser = async (req, res, next) =>
         const userId = req.user.userId;
         const username = req.params.username;
         const profile = await User.findOne({ username });
-        // console.log(profile);
+       
         if (profile) {
             const following = profile.following.includes(userId);
-            // console.log(following);
 
             if (!following) {
                 const userProfile = await User.findOneAndUpdate({ username: req.params.username }, { $push: { following: req.user.userId } }, { new: true });
