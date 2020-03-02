@@ -4,7 +4,19 @@ const User = require('../models/user');
 exports.listArticle = async (req, res, next) =>
 {
     try {
-        const articles = await Article.find({})
+        let query = {};
+        let limit = req.query.limit || 20;
+        let offset = req.query.offset || 0;
+
+        console.log("limit", limit, "offset", offset);
+
+        // const tag = req.query.tag;
+        // console.log(tag);
+
+
+        const articles = await Article.find(query)
+            .limit(Number(limit))
+            .skip(Number(offset))
             .sort({ createdAt: 'desc' })
             .populate('author');
 
@@ -78,8 +90,14 @@ exports.getArticle = async (req, res, next) =>
 {
     try {
         const slug = req.params.slug;
-        console.log(slug);
+        const userId = req.user ? req.user.userId : null;
+        // console.log(userId);
         const article = await Article.findOne({ slug }).populate('author');
+        const articleId = article.id;
+        // let user
+
+        user = await User.findById(userId)
+
         const newArticle = {
             slug: article.slug,
             title: article.title,
@@ -88,7 +106,7 @@ exports.getArticle = async (req, res, next) =>
             tagList: article.tagList,
             createdAt: article.createdAt,
             updatedAt: article.updatedAt,
-            favorited: article.favorited,
+            favorited: user ? user.isFavorite(articleId) : false,
             favoritesCount: article.favoritesCount,
             author: {
                 username: article.author.username,
@@ -220,6 +238,52 @@ exports.unfavorite = async (req, res, next) =>
         } else {
             res.json({ "message": "you dont have like." })
         }
+    } catch (error) {
+        next(error);
+    }
+}
+
+exports.feedArticle = async (req, res, next) =>
+{
+    try {
+        let limit = req.query.limit || 20;
+        let offset = req.query.offset || 0;
+        const userId = req.user.userId
+        console.log("limit", limit, "offset", offset, userId);
+
+        const user = await User.findById(userId)
+
+        console.log(user.following);
+
+        const articles = await Article.find({ author: { $in: user.following } })
+            .limit(Number(limit))
+            .skip(Number(offset))
+            .sort({ createdAt: 'desc' })
+            .populate('author');
+
+        const listarticles = articles.map((article) =>
+        {
+            const { username, bio, image, following } = article.author;
+            const { slug, title, description, body, tagList, createdAt, updatedAt, favorited, favoritesCount } = article;
+            const author = { username, bio, image, following };
+            newArticle = {
+                slug,
+                title,
+                description,
+                body,
+                tagList,
+                createdAt,
+                updatedAt,
+                favoritesCount,
+                favorited,
+                author
+            }
+            return newArticle;
+        })
+
+
+
+        res.json({ listarticles });
     } catch (error) {
         next(error);
     }

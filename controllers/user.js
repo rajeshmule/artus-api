@@ -114,6 +114,8 @@ exports.getProfile = async (req, res, next) =>
     try {
         const userName = req.params.username;
         const user = await User.findOne({ username: userName }).populate('following');
+        console.log(user);
+
         if (user) {
 
             const { username, bio, image } = user;

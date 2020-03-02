@@ -43,6 +43,14 @@ userSchema.methods.verifyPassword = function (password)
     return bcrypt.compareSync(password, this.password);
 };
 
+userSchema.methods.isFavorite = function (id)
+{
+    return this.favorites.some(function (favoriteId)
+    {
+        return favoriteId.toString() === id.toString();
+    });
+}
+
 
 const User = model('User', userSchema);
 module.exports = User;

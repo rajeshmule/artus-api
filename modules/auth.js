@@ -9,25 +9,34 @@ exports.generateJWT = async (user) =>
 
 exports.validateJWT = async (req, res, next) =>
 {
-    // let token = "" || req.headers['authorization'];
 
-    // if (token) {
-    //     var payload = await jwt.verify(token, process.env.SECRET);
-    //     req.user = payload;
-    //     req.user.token = token;
-    //     next();
-    // } else {
-
-    //     res.status(400).json({ error: "token required" })
-    // }
     try {
         let token = "" || req.headers['authorization'];
         var payload = await jwt.verify(token, process.env.SECRET);
         req.user = payload;
+        console.log("validateJWT",payload);
+
         req.user.token = token;
         next();
     } catch (error) {
         res.json({ "message": error.message });
     }
 
+}
+
+exports.optionalValidateJWT = async (req, res, next) =>
+{
+    try {
+        let token = "" || req.headers['authorization'];
+        if (token) {
+            var payload = await jwt.verify(token, process.env.SECRET);
+            req.user = payload;
+            console.log(payload);
+            req.user.token = token;
+        }
+        next();
+
+    } catch (error) {
+        res.json({ "message": error.message });
+    }
 }

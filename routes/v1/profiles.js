@@ -2,11 +2,11 @@ const express = require('express');
 const router = express.Router();
 
 const controller = require('../../controllers/user');
-const { validateJWT } = require('../../modules/auth');
+const { validateJWT, optionalValidateJWT } = require('../../modules/auth');
 
 router
     .route('/:username')
-    .get(controller.getProfile)
+    .get(optionalValidateJWT, controller.getProfile)
 
 // POST /api/profiles/:username/follow
 // DELETE /api/profiles/:username/follow
