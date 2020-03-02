@@ -142,17 +142,25 @@ exports.followUser = async (req, res, next) =>
         const userId = req.user.userId;
         const username = req.params.username;
         const profile = await User.findOne({ username });
-        const following = profile.following.includes(userId);
-        if (!following) {
-            const userProfile = await User.findOneAndUpdate({ username: req.params.username }, { $push: { following: req.user.userId } }, { new: true });
-            const { username, bio, image } = userProfile;
-            const following = userProfile.following.includes(userId);
-            const profile = {
-                username, bio, image, following
+        // console.log(profile);
+        if (profile) {
+            const following = profile.following.includes(userId);
+            // console.log(following);
+
+            if (!following) {
+                const userProfile = await User.findOneAndUpdate({ username: req.params.username }, { $push: { following: req.user.userId } }, { new: true });
+                const { username, bio, image } = userProfile;
+                const following = userProfile.following.includes(userId);
+                const profile = {
+                    username, bio, image, following
+                }
+                res.json({ profile });
+            } else {
+                res.json("you are following.");
             }
-            res.json({ profile });
+
         } else {
-            res.json("you are following.");
+            res.json({ "message": "profile not found." })
         }
 
     } catch (err) {
