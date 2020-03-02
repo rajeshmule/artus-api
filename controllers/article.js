@@ -240,41 +240,40 @@ exports.feedArticle = async (req, res, next) =>
         let limit = req.query.limit || 20;
         let offset = req.query.offset || 0;
         const userId = req.user.userId
-
-
         const user = await User.findById(userId)
+        if (user) {
+            const userFollowing = user.following;
+            const articles = await Article.find({ author: { $in: userFollowing } })
+                .limit(Number(limit))
+                .skip(Number(offset))
+                .sort({ createdAt: 'desc' })
+                .populate('author');
+            const listarticles = articles.map((article) =>
+            {
+                const { username, bio, image, following } = article.author;
+                const { slug, title, description, body, tagList, createdAt, updatedAt, favorited, favoritesCount } = article;
+                const author = { username, bio, image, following };
+                newArticle = {
+                    slug,
+                    title,
+                    description,
+                    body,
+                    tagList,
+                    createdAt,
+                    updatedAt,
+                    favoritesCount,
+                    favorited,
+                    author
+                }
+                return newArticle;
+            })
 
+            res.json({ articles: listarticles });
 
+        } else {
+            res.json({ "message": "token error." })
+        }
 
-        const articles = await Article.find({ author: { $in: user.following } })
-            .limit(Number(limit))
-            .skip(Number(offset))
-            .sort({ createdAt: 'desc' })
-            .populate('author');
-
-        const listarticles = articles.map((article) =>
-        {
-            const { username, bio, image, following } = article.author;
-            const { slug, title, description, body, tagList, createdAt, updatedAt, favorited, favoritesCount } = article;
-            const author = { username, bio, image, following };
-            newArticle = {
-                slug,
-                title,
-                description,
-                body,
-                tagList,
-                createdAt,
-                updatedAt,
-                favoritesCount,
-                favorited,
-                author
-            }
-            return newArticle;
-        })
-
-
-
-        res.json({ articles: listarticles });
     } catch (error) {
         next(error);
     }
