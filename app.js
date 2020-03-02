@@ -3,6 +3,7 @@ var express = require('express');
 var path = require('path');
 var logger = require('morgan');
 const mongoose = require('mongoose');
+const cors = require("cors");
 
 var indexRouter = require('./routes/index');
 const v1Router = require('./routes/v1/index');
@@ -26,11 +27,11 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
+app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());
 // initialize body-parser to parse incoming parameters requests to req.body
 app.use(express.urlencoded({ extended: false }));
-
 // connect static content which place in public dir when we want to use static content like css images like /images/name.jpg
 app.use(express.static(path.join(__dirname, 'public')));
 
