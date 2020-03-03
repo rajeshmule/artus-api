@@ -1,0 +1,6 @@
+{
+    "name":"ARTUS",
+    "description":"clone of medium api",
+    "repository": "https://github.com/rajeshmule/artus.git",
+    "keywords":["node","express", "server","mongodb","api"]
+}
