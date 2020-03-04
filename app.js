@@ -4,6 +4,7 @@ var path = require('path');
 var logger = require('morgan');
 const mongoose = require('mongoose');
 const cors = require("cors");
+const cool = require('cool-ascii-faces');
 
 var indexRouter = require('./routes/index');
 const v1Router = require('./routes/v1/index');
@@ -57,5 +58,6 @@ app.use(function (err, req, res, next)
   res.status(err.status || 500);
   res.render('error');
 });
+app.get('/cool', (req, res) => res.send(cool()));
 
 module.exports = app;

@@ -7,36 +7,56 @@ exports.listArticle = async (req, res, next) =>
         let query = {};
         let limit = req.query.limit || 20;
         let offset = req.query.offset || 0;
+        let username = req.query.author || null;
+        let favoriter = req.query.favorited || null;
+        const userId = req.user ? req.user.userId : null;
+        let user;
+
+        if (typeof req.query.limit !== 'undefined') {
+            limit = req.query.limit;
+        }
+
+        if (typeof req.query.offset !== 'undefined') {
+            offset = req.query.offset;
+        }
+
+        if (typeof req.query.tag !== 'undefined') {
+            query.tagList = { "$in": [req.query.tag] };
+        }
+
+        if (username) {
+            const author = await User.findOne({ username });
+            if (author) {
+                query.author = author.id;
+            }
+        }
+
+        if (favoriter) {
+            query._id = { $in: favoriter.favorites };
+        } else if (req.query.favorited) {
+            query._id = { $in: [] };
+        }
 
         const articles = await Article.find(query)
             .limit(Number(limit))
             .skip(Number(offset))
             .sort({ createdAt: 'desc' })
-            .populate('author');
+            .populate('author')
+            .exec();
 
-        const listarticles = articles.map((article) =>
-        {
-            const { username, bio, image, following } = article.author;
-            const { slug, title, description, body, tagList, createdAt, updatedAt, favorited, favoritesCount } = article;
-            const author = { username, bio, image, following };
-            newArticle = {
-                slug,
-                title,
-                description,
-                body,
-                tagList,
-                createdAt,
-                updatedAt,
-                favoritesCount,
-                favorited,
-                author
-            }
-            return newArticle;
-        })
+        const articlesCount = await Article.estimatedDocumentCount(query).exec();
+        if (userId) {
+            user = await User.findById(userId);
+        }
 
 
-
-        res.json({ articles: listarticles });
+        return res.json({
+            articles: articles.map(function (article)
+            {
+                return article.toJSONFor(user);
+            }),
+            articlesCount: articlesCount
+        });
     } catch (error) {
         next(error);
     }
@@ -48,26 +68,11 @@ exports.createArticle = async (req, res, next) =>
         const data = req.body.article;
         const authorId = req.user.userId;
         data.author = authorId;
+        const user = await User.findById(authorId);
         const createdArticle = await Article.create(data);
         const article = await Article.findById(createdArticle.id).populate('author');
-        const newArticle = {
-            slug: article.slug,
-            title: article.title,
-            description: article.description,
-            body: article.body,
-            tagList: article.tagList,
-            createdAt: article.createdAt,
-            updatedAt: article.updatedAt,
-            favorited: article.favorited,
-            favoritesCount: article.favoritesCount,
-            author: {
-                username: article.author.username,
-                bio: article.author.bio,
-                image: article.author.image,
-                following: article.author.following
-            }
-        }
-        res.json({ article: newArticle });
+
+        res.json({ article: article.toJSONFor(user) });
 
     } catch (error) {
         next(error);

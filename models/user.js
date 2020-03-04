@@ -50,6 +50,23 @@ userSchema.methods.isFavorite = function (id)
         return favoriteId.toString() === id.toString();
     });
 }
+userSchema.methods.isFollowing = function (id)
+{
+    return this.following.some(function (followId)
+    {
+        return followId.toString() === id.toString();
+    });
+};
+
+userSchema.methods.toProfileJSONFor = function (user)
+{
+    return {
+        username: this.username,
+        bio: this.bio,
+        image: this.image || 'https://static.productionready.io/images/smiley-cyrus.jpg',
+        following: user ? user.isFollowing(this._id) : false
+    };
+};
 
 
 const User = model('User', userSchema);

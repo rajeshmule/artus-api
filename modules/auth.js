@@ -14,8 +14,6 @@ exports.validateJWT = async (req, res, next) =>
         let token = "" || req.headers['authorization'];
         var payload = await jwt.verify(token, process.env.SECRET);
         req.user = payload;
-      
-
         req.user.token = token;
         next();
     } catch (error) {
@@ -31,7 +29,6 @@ exports.optionalValidateJWT = async (req, res, next) =>
         if (token) {
             var payload = await jwt.verify(token, process.env.SECRET);
             req.user = payload;
-            
             req.user.token = token;
         }
         next();

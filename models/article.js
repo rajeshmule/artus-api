@@ -44,6 +44,22 @@ articleSchema.pre('save', function (next)
     next();
 });
 
+articleSchema.methods.toJSONFor = function (user)
+{
+    return {
+        slug: this.slug,
+        title: this.title,
+        description: this.description,
+        body: this.body,
+        createdAt: this.createdAt,
+        updatedAt: this.updatedAt,
+        tagList: this.tagList,
+        favorited: user ? user.isFavorite(this._id) : false,
+        favoritesCount: this.favoritesCount,
+        author: this.author.toProfileJSONFor(user)
+    };
+};
+
 
 const Article = model('Article', articleSchema);
 module.exports = Article;
