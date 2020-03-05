@@ -1,5 +1,8 @@
 # artus
 
+fatch api on this url
+http://do-artus.herokuapp.com/api/v1
+
 # ARTUS API Spec
 
 ### Authentication Header:
