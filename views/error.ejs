@@ -7,11 +7,11 @@
 
 <body>
     <% include ./partials/header %>
-
-    <h1><%= message %></h1>
-    <h2><%= error.status %></h2>
-    <pre><%= error.stack %></pre>
-
+    <div class="container">
+        <h1 class="center-align red-text"><%= message %></h1>
+        <h2 class="center-align red-text"><%= error.status %></h2>
+        <pre><%= error.stack %></pre>
+    </div>
 
     <% include ./partials/footer %>
 </body>
