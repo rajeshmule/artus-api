@@ -55,7 +55,7 @@ articleSchema.methods.toJSONFor = function (user)
         updatedAt: this.updatedAt,
         tagList: this.tagList,
         favorited: user ? user.isFavorite(this._id) : false,
-        favoritesCount: this.favoritesCount,
+        favoritesCount: this.favoritedCount,
         author: this.author.toProfileJSONFor(user)
     };
 };

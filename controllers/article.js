@@ -49,14 +49,21 @@ exports.listArticle = async (req, res, next) =>
             user = await User.findById(userId);
         }
 
+        // console.log("pathname", req.baseUrl);
 
-        return res.json({
-            articles: articles.map(function (article)
-            {
-                return article.toJSONFor(user);
-            }),
-            articlesCount: articlesCount
-        });
+        if (req.baseUrl === '/api/v1/articles') {
+
+            return res.json({
+                articles: articles.map(function (article)
+                {
+                    return article.toJSONFor(user);
+                }),
+                articlesCount: articlesCount
+            });
+        } else {
+            res.render('articles', { articles });
+        }
+
     } catch (error) {
         next(error);
     }
@@ -86,10 +93,20 @@ exports.getArticle = async (req, res, next) =>
     try {
         const slug = req.params.slug;
         const userId = req.user ? req.user.userId : null;
-        const article = await Article.findOne({ slug }).populate('author');
+        const articleData = await Article.findOne({ slug }).populate('author');
         // const articleId = article.id;
         const user = await User.findById(userId)
-        res.json({ article: article.toJSONFor(user) })
+        const article = articleData.toJSONFor(user);
+        // console.log(req);
+
+        if (req.baseUrl === '/api/v1/articles') {
+
+            res.json({ article })
+        } else {
+            res.render('article', { article });
+            console.log(article);
+
+        }
 
     } catch (error) {
         next(error);
@@ -237,3 +254,7 @@ exports.feedArticle = async (req, res, next) =>
         next(error);
     }
 }
+
+
+//routes for backend app
+
