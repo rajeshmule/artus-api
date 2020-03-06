@@ -1,5 +1,6 @@
 const { Schema, model } = require('mongoose');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const userSchema = new Schema({
     username: {
@@ -57,6 +58,29 @@ userSchema.methods.isFollowing = function (id)
         return followId.toString() === id.toString();
     });
 };
+userSchema.methods.generateJWT = function ()
+{
+    var today = new Date();
+    var exp = new Date(today);
+    exp.setDate(today.getDate() + 60);
+
+    return jwt.sign({
+        id: this._id,
+        username: this.username,
+        exp: parseInt(exp.getTime() / 1000),
+    }, process.env.SECRET);
+};
+
+userSchema.methods.toAuthJSON = function ()
+{
+    // const token = 
+    return {
+        username: this.username,
+        email: this.email,
+        token: this.generateJWT()
+    };
+};
+
 
 userSchema.methods.toProfileJSONFor = function (user)
 {

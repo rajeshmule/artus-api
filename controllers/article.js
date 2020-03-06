@@ -87,28 +87,9 @@ exports.getArticle = async (req, res, next) =>
         const slug = req.params.slug;
         const userId = req.user ? req.user.userId : null;
         const article = await Article.findOne({ slug }).populate('author');
-        const articleId = article.id;
-        user = await User.findById(userId)
-
-        const newArticle = {
-            slug: article.slug,
-            title: article.title,
-            description: article.description,
-            body: article.body,
-            tagList: article.tagList,
-            createdAt: article.createdAt,
-            updatedAt: article.updatedAt,
-            favorited: user ? user.isFavorite(articleId) : false,
-            favoritesCount: article.favoritesCount,
-            author: {
-                username: article.author.username,
-                bio: article.author.bio,
-                image: article.author.image,
-                following: article.author.following
-            }
-        }
-
-        res.json({ article: newArticle })
+        // const articleId = article.id;
+        const user = await User.findById(userId)
+        res.json({ article: article.toJSONFor(user) })
 
     } catch (error) {
         next(error);
@@ -126,24 +107,8 @@ exports.updateArticle = async (req, res, next) =>
                 const article = await Article.findOneAndUpdate({ slug }, data);
                 if (article) {
                     const article = await Article.findOne({ slug }).populate('author');
-                    const newArticle = {
-                        slug: article.slug,
-                        title: article.title,
-                        description: article.description,
-                        body: article.body,
-                        tagList: article.tagList,
-                        createdAt: article.createdAt,
-                        updatedAt: article.updatedAt,
-                        favorited: article.favorited,
-                        favoritesCount: article.favoritesCount,
-                        author: {
-                            username: article.author.username,
-                            bio: article.author.bio,
-                            image: article.author.image,
-                            following: article.author.following
-                        }
-                    }
-                    res.json({ article: newArticle })
+
+                    res.json({ article: article.toJSONFor(user) })
                 }
                 else {
                     res.json({ "message": "you can't update this article" });
@@ -199,7 +164,7 @@ exports.favorite = async (req, res, next) =>
                 await Article.findByIdAndUpdate(articleId, { favoritedCount: count });
                 const article = await Article.findById(articleId).populate('author', '-password');
 
-                res.json({ article })
+                res.json({ article: article.toJSONFor(user) })
             } else {
                 res.json({ "message": "you have like this article." })
             }
@@ -227,7 +192,7 @@ exports.unfavorite = async (req, res, next) =>
                 const count = await User.countDocuments({ favorites: { $in: [articleId] } })
                 await Article.findByIdAndUpdate(articleId, { favoritedCount: count });
                 const article = await Article.findById(articleId).populate('author');
-                res.json({ article })
+                res.json({ article: article.toJSONFor(user) })
             } else {
                 res.json({ "message": "you dont have like." })
             }
@@ -252,28 +217,17 @@ exports.feedArticle = async (req, res, next) =>
                 .limit(Number(limit))
                 .skip(Number(offset))
                 .sort({ createdAt: 'desc' })
-                .populate('author');
-            const listarticles = articles.map((article) =>
-            {
-                const { username, bio, image, following } = article.author;
-                const { slug, title, description, body, tagList, createdAt, updatedAt, favorited, favoritesCount } = article;
-                const author = { username, bio, image, following };
-                newArticle = {
-                    slug,
-                    title,
-                    description,
-                    body,
-                    tagList,
-                    createdAt,
-                    updatedAt,
-                    favoritesCount,
-                    favorited,
-                    author
-                }
-                return newArticle;
-            })
+                .populate('author')
+                .exec();
 
-            res.json({ articles: listarticles });
+
+            res.json({
+                articles: articles.map(function (article)
+                {
+                    return article.toJSONFor(user);
+                }),
+                articlesCount: articlesCount
+            });
 
         } else {
             res.json({ "message": "token error." })
