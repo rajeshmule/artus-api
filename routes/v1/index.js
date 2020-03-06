@@ -9,7 +9,7 @@ const tagsRouter = require('./tags');
 
 router.get('/', (req, res) =>
 {
-    res.json({ message: "Welcome to artus API" })
+    res.render('api', { title: 'artus' });  // res.json({ message: "Welcome to artus API" })
 });
 
 router.use('/users', usersRouter);
