@@ -1,21 +1,20 @@
-# artus
+# Welcome to artus Node API
 
-fatch api on this url
-http://artus-api.herokuapp.com/api/v1
+`fatch api on this url` http://artus-api.herokuapp.com/api/v1
 
-# ARTUS API Spec
+### ARTUS API Spec
 
 ### Authentication Header:
 
 `Authorization: Token jwt.token.here`
 
-## JSON Objects returned by API:
+### JSON Objects returned by API:
 
 Make sure the right content type like `Content-Type: application/json; charset=utf-8` is correctly returned.
 
 ### Users (for authentication)
 
-```JSON
+```json
 {
   "user": {
     "email": "rajesh@rajesh.com",
@@ -185,7 +184,7 @@ If a request fails any validations, expect a 422 and errors in the following for
 
 ### Authentication:
 
-`POST /api/v1/users/login`
+`POST /users/login`
 
 Example request body:
 
@@ -204,7 +203,7 @@ Required fields: `email`, `password`
 
 ### Registration:
 
-`POST /api/v1/users`
+`POST /users`
 
 Example request body:
 
@@ -224,13 +223,13 @@ Required fields: `email`, `username`, `password`
 
 ### Get Current User
 
-`GET /api/v1/user`
+`GET /user`
 
 Authentication required, returns a [User](#users-for-authentication) that's the current user
 
 ### Update User
 
-`PUT /api/v1/user`
+`PUT /user`
 
 Example request body:
 
@@ -250,13 +249,13 @@ Accepted fields: `email`, `username`, `password`, `image`, `bio`
 
 ### Get Profile
 
-`GET /api/v1/profiles/:username`
+`GET /profiles/:username`
 
 Authentication optional, returns a [Profile](#profile)
 
 ### Follow user
 
-`POST /api/v1/profiles/:username/follow`
+`POST /profiles/:username/follow`
 
 Authentication required, returns a [Profile](#profile)
 
@@ -264,7 +263,7 @@ No additional parameters required
 
 ### Unfollow user
 
-`DELETE /api/v1/profiles/:username/follow`
+`DELETE /profiles/:username/follow`
 
 Authentication required, returns a [Profile](#profile)
 
@@ -272,7 +271,7 @@ No additional parameters required
 
 ### List Articles
 
-`GET /api/v1/articles`
+`GET /articles`
 
 Returns most recent articles globally by default, provide `tag`, `author` or `favorited` query parameter to filter results
 
@@ -302,7 +301,7 @@ Authentication optional, will return [multiple articles](#multiple-articles), or
 
 ### Feed Articles
 
-`GET /api/v1/articles/feed`
+`GET /articles/feed`
 
 Can also take `limit` and `offset` query parameters like [List Articles](#list-articles)
 
@@ -310,13 +309,13 @@ Authentication required, will return [multiple articles](#multiple-articles) cre
 
 ### Get Article
 
-`GET /api/v1/articles/:slug`
+`GET /articles/:slug`
 
 No authentication required, will return [single article](#single-article)
 
 ### Create Article
 
-`POST /api/v1/articles`
+`POST /articles`
 
 Example request body:
 
@@ -344,7 +343,7 @@ Optional fields: `tagList` as an array of Strings
 
 ### Update Article
 
-`PUT /api/v1/articles/:slug`
+`PUT /articles/:slug`
 
 Example request body:
 
@@ -364,13 +363,13 @@ The `slug` also gets updated when the `title` is changed
 
 ### Delete Article
 
-`DELETE /api/v1/articles/:slug`
+`DELETE /articles/:slug`
 
 Authentication required
 
 ### Add Comments to an Article
 
-`POST /api/v1/articles/:slug/comments`
+`POST /articles/:slug/comments`
 
 Example request body:
 
@@ -388,19 +387,19 @@ Required field: `body`
 
 ### Get Comments from an Article
 
-`GET /api/v1/articles/:slug/comments`
+`GET /articles/:slug/comments`
 
 Authentication optional, returns [multiple comments](#multiple-comments)
 
 ### Delete Comment
 
-`DELETE /api/v1/articles/:slug/comments/:id`
+`DELETE /articles/:slug/comments/:id`
 
 Authentication required
 
 ### Favorite Article
 
-`POST /api/v1/articles/:slug/favorite`
+`POST /articles/:slug/favorite`
 
 Authentication required, returns the [Article](#single-article)
 
@@ -408,7 +407,7 @@ No additional parameters required
 
 ### Unfavorite Article
 
-`DELETE /api/v1/articles/:slug/favorite`
+`DELETE /articles/:slug/favorite`
 
 Authentication required, returns the [Article](#single-article)
 
@@ -416,6 +415,6 @@ No additional parameters required
 
 ### Get Tags
 
-`GET /api/v1/tags`
+`GET /tags`
 
 No authentication required, returns a [List of Tags](#list-of-tags)

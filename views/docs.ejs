@@ -7,8 +7,8 @@
 
 <body>
     <% include ./partials/header %>
-    <div class="center-align">
-        < <h3>Welcome to artus Node API</h3>
+    <div class="container">
+        <%- convertmd("README.md") %>
     </div>
     <% include ./partials/footer %>
 </body>
