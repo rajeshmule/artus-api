@@ -1,7 +1,7 @@
 # artus
 
 fatch api on this url
-http://write-artus.herokuapp.com/api/v1
+http://artus-api.herokuapp.com/api/v1
 
 # ARTUS API Spec
 
