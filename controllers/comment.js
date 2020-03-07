@@ -1,6 +1,5 @@
 const Article = require('../models/article');
 const Comment = require('../models/comment');
-const User = require('../models/user')
 
 exports.getComments = async (req, res, next) =>
 {
@@ -20,7 +19,6 @@ exports.getComments = async (req, res, next) =>
 exports.addComment = async (req, res, next) =>
 {
     try {
-        // console.log(req.baseUrl);
         const commentBody = req.body.comment;
         const authorId = req.user.userId;
         const articleSlug = req.params.slug;

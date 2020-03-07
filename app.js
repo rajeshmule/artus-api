@@ -4,11 +4,8 @@ var path = require('path');
 var logger = require('morgan');
 const mongoose = require('mongoose');
 const cors = require("cors");
-const cool = require('cool-ascii-faces');
 
 var indexRouter = require('./routes/index');
-// var usersRouter = require('./routes/users');
-// const articlesRouter = require('./routes/articles');
 const v1Router = require('./routes/v1/index');
 
 require('dotenv').config();
@@ -40,8 +37,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // router for Home-Page
 app.use('/', indexRouter);
-// app.use('/users', usersRouter);
-// app.use('/articles', articlesRouter);
 // reuter for articles
 app.use('/api/v1', v1Router);
 
@@ -62,6 +57,5 @@ app.use(function (err, req, res, next)
   res.status(err.status || 500);
   res.render('error');
 });
-app.get('/cool', (req, res) => res.send(cool()));
 
 module.exports = app;

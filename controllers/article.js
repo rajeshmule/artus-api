@@ -96,21 +96,12 @@ exports.getArticle = async (req, res, next) =>
         const articleData = await Article.findOne({ slug })
             .populate('author')
             .populate('comments');
-        // const articleId = article.id;
+        
         const user = await User.findById(userId)
         const article = articleData.toJSONFor(user);
-        const comments = articleData.comments;
-        // console.log(comments);
-
-        if (req.baseUrl === '/api/v1/articles') {
-
-            res.json({ article })
-        } else {
-            res.render('article', { article, comments });
-            // console.log(article, comments);
-
-        }
-
+        
+        
+        res.json({ article })
     } catch (error) {
         next(error);
     }
