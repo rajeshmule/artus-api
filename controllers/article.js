@@ -93,18 +93,21 @@ exports.getArticle = async (req, res, next) =>
     try {
         const slug = req.params.slug;
         const userId = req.user ? req.user.userId : null;
-        const articleData = await Article.findOne({ slug }).populate('author');
+        const articleData = await Article.findOne({ slug })
+            .populate('author')
+            .populate('comments');
         // const articleId = article.id;
         const user = await User.findById(userId)
         const article = articleData.toJSONFor(user);
-        // console.log(req);
+        const comments = articleData.comments;
+        // console.log(comments);
 
         if (req.baseUrl === '/api/v1/articles') {
 
             res.json({ article })
         } else {
-            res.render('article', { article });
-            console.log(article);
+            res.render('article', { article, comments });
+            // console.log(article, comments);
 
         }
 

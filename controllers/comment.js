@@ -20,6 +20,7 @@ exports.getComments = async (req, res, next) =>
 exports.addComment = async (req, res, next) =>
 {
     try {
+        // console.log(req.baseUrl);
         const commentBody = req.body.comment;
         const authorId = req.user.userId;
         const articleSlug = req.params.slug;

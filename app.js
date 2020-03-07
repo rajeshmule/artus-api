@@ -7,8 +7,8 @@ const cors = require("cors");
 const cool = require('cool-ascii-faces');
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-const articlesRouter = require('./routes/articles');
+// var usersRouter = require('./routes/users');
+// const articlesRouter = require('./routes/articles');
 const v1Router = require('./routes/v1/index');
 
 require('dotenv').config();
@@ -40,8 +40,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // router for Home-Page
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/articles', articlesRouter);
+// app.use('/users', usersRouter);
+// app.use('/articles', articlesRouter);
 // reuter for articles
 app.use('/api/v1', v1Router);
 

@@ -29,6 +29,7 @@ router
     .route('/:slug/comments')
     .post(validateJWT, addComment)
     .get(optionalValidateJWT, getComments)
+  
 
 router
     .route('/:slug/comments/:id')
