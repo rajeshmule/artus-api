@@ -218,6 +218,7 @@ exports.unfavorite = async (req, res, next) =>
 exports.feedArticle = async (req, res, next) =>
 {
     try {
+        let query = {};
         let limit = req.query.limit || 20;
         let offset = req.query.offset || 0;
         const userId = req.user.userId
