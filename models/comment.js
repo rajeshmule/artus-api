@@ -16,5 +16,16 @@ const commentSchema = new Schema({
 
 }, { timestamps: true });
 
+// Requires population of author
+commentSchema.methods.toJSONFor = function (user)
+{
+    return {
+        id: this._id,
+        body: this.body,
+        createdAt: this.createdAt,
+        author: this.author.toProfileJSONFor(user)
+    };
+};
+
 const Comment = model('Comment', commentSchema);
 module.exports = Comment;

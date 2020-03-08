@@ -5,12 +5,12 @@ var logger = require('morgan');
 const mongoose = require('mongoose');
 const cors = require("cors");
 const fs = require('fs');
-var MarkdownIt = require('markdown-it'),
-  md = new MarkdownIt({
-    html: true,
-    linkify: true,
-    typographer: true
-  });
+var MarkdownIt = require('markdown-it');
+var md = new MarkdownIt({
+  html: true,
+  linkify: true,
+  typographer: true
+});
 
 var indexRouter = require('./routes/index');
 const v1Router = require('./routes/v1/index');
@@ -44,22 +44,18 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // router for Home-Page
 app.use('/', indexRouter);
-// reuter for articles
 app.use('/api/v1', v1Router);
+
 app.get('/docs', function (req, res)
 {
   // Allow the docs.html template to 'include' markdown files
   var convertmd = function (filename)
   {
     var path = __dirname + "/" + filename;
-    console.log(path);
-
     var include = fs.readFileSync(path, 'utf8');
     var html = md.render(include);
-
     return html;
   };
-
   res.render('docs', { convertmd });
 });
 // catch 404 and forward to error handler

@@ -96,11 +96,11 @@ exports.getArticle = async (req, res, next) =>
         const articleData = await Article.findOne({ slug })
             .populate('author')
             .populate('comments');
-        
+
         const user = await User.findById(userId)
         const article = articleData.toJSONFor(user);
-        
-        
+
+
         res.json({ article })
     } catch (error) {
         next(error);
@@ -231,7 +231,7 @@ exports.feedArticle = async (req, res, next) =>
                 .populate('author')
                 .exec();
 
-
+            const articlesCount = await Article.estimatedDocumentCount(query).exec();
             res.json({
                 articles: articles.map(function (article)
                 {
