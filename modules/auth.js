@@ -1,39 +1,33 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
-exports.generateJWT = async (user) =>
-{
-    const payload = { userId: user.id, email: user.email };
-    const token = await jwt.sign(payload, process.env.SECRET);
-    return token;
-}
+exports.generateJWT = async user => {
+  const payload = { userId: user.id, email: user.email };
+  const token = await jwt.sign(payload, process.env.SECRET);
+  return token;
+};
 
-exports.validateJWT = async (req, res, next) =>
-{
+exports.validateJWT = async (req, res, next) => {
+  try {
+    let token = "" || req.headers["authorization"];
+    var payload = await jwt.verify(token, process.env.SECRET);
+    req.user = payload;
+    req.user.token = token;
+    next();
+  } catch (error) {
+    res.json({ message: error.message });
+  }
+};
 
-    try {
-        let token = "" || req.headers['authorization'];
-        var payload = await jwt.verify(token, process.env.SECRET);
-        req.user = payload;
-        req.user.token = token;
-        next();
-    } catch (error) {
-        res.json({ "message": error.message });
+exports.optionalValidateJWT = async (req, res, next) => {
+  try {
+    let token = "" || req.headers["authorization"];
+    if (token) {
+      var payload = await jwt.verify(token, process.env.SECRET);
+      req.user = payload;
+      req.user.token = token;
     }
-
-}
-
-exports.optionalValidateJWT = async (req, res, next) =>
-{
-    try {
-        let token = "" || req.headers['authorization'];
-        if (token) {
-            var payload = await jwt.verify(token, process.env.SECRET);
-            req.user = payload;
-            req.user.token = token;
-        }
-        next();
-
-    } catch (error) {
-        res.json({ "message": error.message });
-    }
-}
+    next();
+  } catch (error) {
+    res.json({ message: error.message });
+  }
+};
