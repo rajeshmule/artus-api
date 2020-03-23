@@ -87,7 +87,6 @@ Make sure the right content type like `Content-Type: application/json; charset=u
       "bio": "I like to code.",
       "following": []
     }
-  }
   }, {
     "slug": "learn-html",
     "title": "learn html whith rupali",
