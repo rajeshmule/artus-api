@@ -17,7 +17,7 @@ const v1Router = require('./routes/v1/index');
 
 require('dotenv').config();
 
-mongoose.connect(process.env.MONGODB_URI, {
+mongoose.connect(process.env.MONGODB_URI || process.env.MONGODB_ADDON_URI, {
   useCreateIndex: true,
   useUnifiedTopology: true,
   useNewUrlParser: true,
